@@ -33,7 +33,7 @@ To run the dashboard locally:
 git clone https://github.com/norah-kuduk/cs4016.git
 cd cs4016
 pip install -r requirements.txt
-python app.py
+python3 app.py
 ```
 Then visit http://127.0.0.1:8050 in your browser.
 
