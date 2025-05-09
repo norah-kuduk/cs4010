@@ -15,10 +15,26 @@ Cybersecurity breaches are increasingly common, often exposing sensitive user da
 - How many breaches are verified vs. unverified?
 
 ## Repository Contents
+```plaintext
 /breach-analysis/
 │
-├── app.py # Dash dashboard source code
-├── requirements.txt # Python dependencies
-├── screenshots/ # Folder with dashboard screenshots
-├── breach_analysis.ipynb # Google Colab notebook for data exploration
-└── README.md # Project documentation
+├── app.py                   # Dash dashboard source code
+├── requirements.txt         # Python dependencies
+├── screenshots/             # Folder with dashboard screenshots
+├── breach_analysis.ipynb    # Google Colab notebook for data exploration
+└── README.md                # Project documentation
+```
+
+## Installation
+
+To run the dashboard locally:
+
+```bash
+git clone https://github.com/norah-kuduk/cs4016.git
+cd cs4016
+pip install -r requirements.txt
+python app.py
+```
+Then visit http://127.0.0.1:8050 in your browser.
+
+
