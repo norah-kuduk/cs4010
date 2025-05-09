@@ -21,7 +21,7 @@ Cybersecurity breaches are increasingly common, often exposing sensitive user da
 ├── app.py                   # Dash dashboard source code
 ├── requirements.txt         # Python dependencies
 ├── screenshots/             # Folder with dashboard screenshots
-├── breach_analysis.ipynb    # Google Colab notebook for data exploration
+├── Cyber_Final_Project.ipynb    # Google Colab notebook for data exploration
 └── README.md                # Project documentation
 ```
 
