@@ -5,7 +5,7 @@ from dash import Dash, dcc, html, Input, Output
 import dash_bootstrap_components as dbc
 from collections import Counter
 
-# --- 1. Fetch Data from HIBP API ---
+# Fetch data from HIBP API
 url = "https://haveibeenpwned.com/api/v3/breaches"
 headers = {
     "User-Agent": "DashApp - Breach Analysis"
@@ -13,30 +13,28 @@ headers = {
 response = requests.get(url, headers=headers)
 data = response.json()
 
-# --- 2. Clean and Prepare Data ---
+# Clean data 
 df = pd.DataFrame(data)
 df['BreachDate'] = pd.to_datetime(df['BreachDate'], errors='coerce')
 df['AddedDate'] = pd.to_datetime(df['AddedDate'], errors='coerce')
-df['AccountsAffected'] = df['PwnCount']
 df['Description'] = df['Description'].str.replace('<[^<]+?>', '', regex=True)
 df['Year'] = df['BreachDate'].dt.year
 df['BreachTitle'] = df['Title']
 
-# --- 3. Create Visualizations ---
 # Breaches over time
 breaches_by_year = df.groupby('Year').size().reset_index(name='Count')
 fig1 = px.bar(breaches_by_year, x='Year', y='Count', title='Breaches Per Year')
 
 # Most common data classes
 all_classes = sum(df['DataClasses'], [])
-class_counts = pd.DataFrame(Counter(all_classes).most_common(), columns=['DataClass', 'Count']).head(20)
+class_counts = pd.DataFrame(Counter(all_classes).most_common(), columns=['DataClass', 'Count']).head(15)
 fig2 = px.bar(class_counts, x='Count', y='DataClass', orientation='h', title='Most Common Compromised Data Types')
 
 # Top 15 breaches
-top_breaches = df.sort_values(by='AccountsAffected', ascending=False).head(15)
+top_breaches = df.sort_values(by='PwnCount', ascending=False).head(15)
 fig3 = px.bar(
     top_breaches,
-    x='AccountsAffected',
+    x='PwnCount',
     y='BreachTitle',
     orientation='h',
     title='Top 15 Breaches by Accounts Affected',
@@ -48,7 +46,7 @@ verified_counts = df['IsVerified'].value_counts().rename({True: 'Verified', Fals
 verified_counts.columns = ['VerificationStatus', 'Count']
 fig4 = px.pie(verified_counts, names='VerificationStatus', values='Count', title='Verified vs Unverified Breaches')
 
-# --- 4. Dash App Layout with Tabs ---
+# Dash App Layout with Tabs
 app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 
 app.layout = dbc.Container([
@@ -75,6 +73,31 @@ app.layout = dbc.Container([
                         href="https://haveibeenpwned.com/API/v3", target="_blank")
                 ]),
                 html.P("Note: Breach data is sourced from publicly known incidents and may not represent all breaches."),
+
+                html.Hr(),
+                html.H5("Data Dictionary"),
+                html.Table([
+                    html.Thead(html.Tr([
+                        html.Th("Variable"),
+                        html.Th("Description")
+                    ])),
+                    html.Tbody([
+                        html.Tr([html.Td("Title"), html.Td("Name of the breach or incident")]),
+                        html.Tr([html.Td("Domain"), html.Td("Domain associated with the breach")]),
+                        html.Tr([html.Td("BreachDate"), html.Td("Date the breach occurred")]),
+                        html.Tr([html.Td("AddedDate"), html.Td("Date the breach was added to HIBP")]),
+                        html.Tr([html.Td("PwnCount"), html.Td("Number of accounts affected")]),
+                        html.Tr([html.Td("Description"), html.Td("Details of what happened in the breach")]),
+                        html.Tr([html.Td("DataClasses"), html.Td("Types of data exposed (e.g., Email addresses, Passwords)")]),
+                        html.Tr([html.Td("IsVerified"), html.Td("Whether the breach is confirmed to be legitimate")]),
+                        html.Tr([html.Td("IsSensitive"), html.Td("Whether the data is considered sensitive")]),
+                        html.Tr([html.Td("IsRetired"), html.Td("Whether the breach is no longer publicly shown")]),
+                        html.Tr([html.Td("IsFabricated"), html.Td("Whether the breach is known to be fake")]),
+                        html.Tr([html.Td("BreachTitle"), html.Td("Duplicate of Title, used for display")]),
+                        html.Tr([html.Td("Year"), html.Td("Extracted year from BreachDate")]),
+                    ])
+                ], style={'width': '100%', 'border': '1px solid #ccc',  }),
+
             ], style={'padding': '20px'})
         ]),
 
@@ -123,7 +146,7 @@ def display_breach_details(clickData):
         return (
             f"Breach: {breach['BreachTitle']}\n"
             f"Breach Date: {breach['BreachDate'].date()}\n"
-            f"Accounts Affected: {breach['AccountsAffected']:,}\n\n"
+            f"Accounts Affected: {breach['PwnCount']:,}\n\n"
             f"Description:\n{breach['Description']}"
         )
     return "Click on a bar above to see breach details."
@@ -135,10 +158,10 @@ def display_breach_details(clickData):
 def update_top_breaches_for_year(clickData):
     if clickData:
         year_clicked = clickData['points'][0]['x']
-        top5 = df[df['Year'] == int(year_clicked)].sort_values(by='AccountsAffected', ascending=False).head(5)
+        top5 = df[df['Year'] == int(year_clicked)].sort_values(by='PwnCount', ascending=False).head(5)
         fig = px.bar(
             top5,
-            x='AccountsAffected',
+            x='PwnCount',
             y='BreachTitle',
             orientation='h',
             title=f'Top 5 Breaches in {year_clicked}',
@@ -158,7 +181,7 @@ def display_yearly_breach_details(clickData):
         return (
             f"Breach: {breach['BreachTitle']}\n"
             f"Breach Date: {breach['BreachDate'].date()}\n"
-            f"Accounts Affected: {breach['AccountsAffected']:,}\n\n"
+            f"Accounts Affected: {breach['PwnCount']:,}\n\n"
             f"Description:\n{breach['Description']}"
         )
     return "Click on a breach to see details."
