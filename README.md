@@ -30,7 +30,7 @@ Cybersecurity breaches are increasingly common, often exposing sensitive user da
 To run the dashboard locally:
 
 ```bash
-git clone https://github.com/norah-kuduk/cs4016.git
+git clone https://github.com/norah-kuduk/cyber-dashboard.git
 cd cs4016
 pip install -r requirements.txt
 python3 app.py
